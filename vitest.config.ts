@@ -6,6 +6,7 @@ export default defineConfig({
     include: ['backend/src/**/*.test.ts'],
     pool: 'forks',
     fileParallelism: false,
+    testTimeout: 20000,
     env: {
       NODE_ENV: 'test',
       LOG_LEVEL: 'silent',

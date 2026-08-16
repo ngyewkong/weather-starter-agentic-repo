@@ -1,4 +1,12 @@
-export class WeatherProviderError extends Error {}
+export class WeatherProviderError extends Error {
+  constructor(
+    message: string,
+    readonly retryable: boolean = true,
+    readonly retryAfterMs: number | null = null,
+  ) {
+    super(message);
+  }
+}
 
 interface ForecastPayload {
   code?: number;
@@ -181,10 +189,62 @@ export class SingaporeWeatherClient {
   ) {}
 
   async getCurrentWeather(latitude: number, longitude: number): Promise<WeatherSnapshot> {
-    const forecastPayload = await this.fetchLatestForecastPayload().catch(() => null);
-    return forecastPayload
-      ? this.snapshotFromPayload(forecastPayload, latitude, longitude)
+    const [
+      forecastPayload,
+      temperature,
+      humidity,
+      rainfall,
+      windSpeed,
+      windDirection,
+      uv,
+      airQuality,
+      twentyFourHour,
+      fourDay,
+    ] = await Promise.all([
+      this.fetchLatestForecastPayload().catch(() => null),
+      this.fetchNearestReading('air-temperature', latitude, longitude).catch(() => null),
+      this.fetchNearestReading('relative-humidity', latitude, longitude).catch(() => null),
+      this.fetchNearestReading('rainfall', latitude, longitude).catch(() => null),
+      this.fetchNearestReading('wind-speed', latitude, longitude).catch(() => null),
+      this.fetchNearestReading('wind-direction', latitude, longitude).catch(() => null),
+      this.fetchUvIndex().catch(() => null),
+      this.fetchAirQuality(latitude, longitude).catch(() => null),
+      this.fetchTwentyFourHourForecast(latitude, longitude).catch(() => null),
+      this.fetchFourDayForecast().catch(() => null),
+    ]);
+
+    const base = forecastPayload
+      ? this.snapshotFromPayloadSafe(forecastPayload, latitude, longitude)
       : this.emptyForecastSnapshot();
+
+    return {
+      ...base,
+      temperature_c: temperature?.value ?? null,
+      humidity_percent: humidity?.value ?? null,
+      rainfall_mm: rainfall?.value ?? null,
+      wind_speed_knots: windSpeed?.value ?? null,
+      wind_direction_degrees: windDirection?.value ?? null,
+      uv_index: uv?.value ?? null,
+      psi_twenty_four_hourly: airQuality?.psi ?? null,
+      pm25_one_hourly: airQuality?.pm25 ?? null,
+      air_quality_region: airQuality?.region ?? null,
+      forecast_low_c: twentyFourHour?.low ?? base.forecast_low_c,
+      forecast_high_c: twentyFourHour?.high ?? base.forecast_high_c,
+      forecast_periods: twentyFourHour?.periods ?? [],
+      daily_forecast: fourDay?.days ?? [],
+    };
+  }
+
+  private snapshotFromPayloadSafe(
+    payload: ForecastPayload,
+    latitude: number,
+    longitude: number,
+  ): WeatherSnapshot {
+    try {
+      return this.snapshotFromPayload(payload, latitude, longitude);
+    } catch {
+      return this.emptyForecastSnapshot();
+    }
   }
 
   async fetchLatestForecastPayload(): Promise<ForecastPayload> {
@@ -192,6 +252,22 @@ export class SingaporeWeatherClient {
   }
 
   async fetchNearestReading(
+    endpoint:
+      | 'air-temperature'
+      | 'relative-humidity'
+      | 'rainfall'
+      | 'wind-speed'
+      | 'wind-direction',
+    latitude: number,
+    longitude: number,
+  ): Promise<{ value: number | null; timestamp: string | null }> {
+    return this.withRetry(
+      () => this.fetchNearestReadingOnce(endpoint, latitude, longitude),
+      (result) => result.value === null,
+    );
+  }
+
+  private async fetchNearestReadingOnce(
     endpoint:
       | 'air-temperature'
       | 'relative-humidity'
@@ -227,11 +303,42 @@ export class SingaporeWeatherClient {
     };
   }
 
+  private async withRetry<T>(
+    fn: () => Promise<T>,
+    shouldRetry: (result: T) => boolean,
+    attempts = 3,
+    delayMs = 250,
+  ): Promise<T> {
+    let lastResult: T | undefined;
+    let lastError: unknown;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      if (attempt > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+      }
+      try {
+        lastResult = await fn();
+        lastError = undefined;
+        if (!shouldRetry(lastResult)) return lastResult;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    if (lastError !== undefined) throw lastError;
+    return lastResult as T;
+  }
+
   async fetchReadingPayload(endpoint: string): Promise<ReadingPayload> {
     return this.fetchJson(`${this.apiBaseUrl()}/v2/real-time/api/${endpoint}`);
   }
 
   async fetchUvIndex(): Promise<{ value: number | null; timestamp: string | null }> {
+    return this.withRetry(
+      () => this.fetchUvIndexOnce(),
+      (result) => result.value === null,
+    );
+  }
+
+  private async fetchUvIndexOnce(): Promise<{ value: number | null; timestamp: string | null }> {
     const payload = await this.fetchJson<UvPayload>(`${this.apiBaseUrl()}/v2/real-time/api/uv`);
     if (payload.code !== undefined && payload.code !== 0) {
       throw new WeatherProviderError(
@@ -248,6 +355,21 @@ export class SingaporeWeatherClient {
   }
 
   async fetchAirQuality(
+    latitude: number,
+    longitude: number,
+  ): Promise<{
+    psi: number | null;
+    pm25: number | null;
+    region: string | null;
+    timestamp: string | null;
+  }> {
+    return this.withRetry(
+      () => this.fetchAirQualityOnce(latitude, longitude),
+      (result) => result.psi === null || result.pm25 === null,
+    );
+  }
+
+  private async fetchAirQualityOnce(
     latitude: number,
     longitude: number,
   ): Promise<{
@@ -291,6 +413,21 @@ export class SingaporeWeatherClient {
     periods: ForecastPeriod[];
     timestamp: string | null;
   }> {
+    return this.withRetry(
+      () => this.fetchTwentyFourHourForecastOnce(latitude, longitude),
+      (result) => result.low === null && result.high === null && result.periods.length === 0,
+    );
+  }
+
+  private async fetchTwentyFourHourForecastOnce(
+    latitude: number,
+    longitude: number,
+  ): Promise<{
+    low: number | null;
+    high: number | null;
+    periods: ForecastPeriod[];
+    timestamp: string | null;
+  }> {
     const payload = await this.fetchJson<TwentyFourHourPayload>(
       `${this.apiBaseUrl()}/v2/real-time/api/twenty-four-hr-forecast`,
     );
@@ -316,6 +453,16 @@ export class SingaporeWeatherClient {
   }
 
   async fetchFourDayForecast(): Promise<{ days: DailyForecast[]; timestamp: string | null }> {
+    return this.withRetry(
+      () => this.fetchFourDayForecastOnce(),
+      (result) => result.days.length === 0,
+    );
+  }
+
+  private async fetchFourDayForecastOnce(): Promise<{
+    days: DailyForecast[];
+    timestamp: string | null;
+  }> {
     const payload = await this.fetchJson<FourDayPayload>(
       `${this.legacyApiBaseUrl()}/v1/environment/4-day-weather-forecast`,
     );
@@ -342,6 +489,25 @@ export class SingaporeWeatherClient {
   }
 
   private async fetchJson<T>(url: string): Promise<T> {
+    const attempts = 4;
+    let lastError: unknown;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      if (attempt > 0) {
+        const previous = lastError instanceof WeatherProviderError ? lastError : null;
+        const delay = previous?.retryAfterMs ?? 250 * 2 ** (attempt - 1);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+      try {
+        return await this.fetchJsonOnce<T>(url);
+      } catch (error) {
+        lastError = error;
+        if (error instanceof WeatherProviderError && !error.retryable) throw error;
+      }
+    }
+    throw lastError;
+  }
+
+  private async fetchJsonOnce<T>(url: string): Promise<T> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.options.timeoutMs ?? 8000);
 
@@ -357,10 +523,21 @@ export class SingaporeWeatherClient {
 
       if (!response.ok) {
         if (response.status === 429) {
-          throw new WeatherProviderError('Weather provider rate limit reached (HTTP 429)');
+          const retryAfterHeader = Number(response.headers.get('retry-after'));
+          const retryAfterMs = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+            ? retryAfterHeader * 1000
+            : null;
+          throw new WeatherProviderError(
+            'Weather provider rate limit reached (HTTP 429)',
+            true,
+            retryAfterMs,
+          );
         }
         if (response.status === 401 || response.status === 403) {
-          throw new WeatherProviderError('Weather provider rejected request (check API key)');
+          throw new WeatherProviderError(
+            'Weather provider rejected request (check API key)',
+            false,
+          );
         }
         throw new WeatherProviderError(`Weather provider returned HTTP ${response.status}`);
       }
