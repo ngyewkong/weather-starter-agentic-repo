@@ -148,3 +148,19 @@ export function CloseIcon({ className = 'h-3.5 w-3.5' }: IconProps) {
     </svg>
   );
 }
+
+export function ChevronDownIcon({ className = 'h-3.5 w-3.5' }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base}>
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
+export function CheckIcon({ className = 'h-3.5 w-3.5' }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base}>
+      <path d="M5 13l4 4L19 7" />
+    </svg>
+  );
+}

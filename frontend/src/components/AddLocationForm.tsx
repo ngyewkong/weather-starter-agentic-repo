@@ -37,7 +37,7 @@ export function AddLocationForm() {
       <button
         type="button"
         onClick={() => setAdding(true)}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/[0.07] px-3 py-2.5 text-sm font-medium text-white/85 backdrop-blur-xl hover:bg-white/[0.12]"
+        className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-card)] border border-[color:var(--card-border)] bg-[color:var(--card-bg)] px-3 py-2.5 text-sm font-medium text-[color:var(--text-3)] backdrop-blur-[var(--card-blur)] hover:bg-[color:var(--card-bg-hover)]"
       >
         <PlusIcon />
         <span>Add Location</span>
@@ -48,14 +48,14 @@ export function AddLocationForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="grid gap-2.5 rounded-2xl border border-white/15 bg-white/[0.1] p-3 backdrop-blur-xl"
+      className="grid gap-2.5 rounded-[var(--radius-card)] border border-[color:var(--card-border)] bg-[color:var(--card-bg-selected)] p-3 backdrop-blur-[var(--card-blur)]"
     >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/60">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-5)]">
         New coordinate
       </p>
       <div className="grid grid-cols-2 gap-2">
         <label className="grid min-w-0 gap-1">
-          <span className="text-[11px] text-white/60">Latitude</span>
+          <span className="text-[11px] text-[color:var(--text-5)]">Latitude</span>
           <input
             type="number"
             step="any"
@@ -63,11 +63,11 @@ export function AddLocationForm() {
             onChange={(e) => setLatitude(e.target.value)}
             placeholder="1.3508"
             required
-            className="w-full min-w-0 rounded-md border border-white/15 bg-white/10 px-2 py-1.5 text-sm text-white placeholder:text-white/40"
+            className="w-full min-w-0 rounded-md border border-[color:var(--card-border)] bg-[color:var(--input-bg)] px-2 py-1.5 text-sm text-[color:var(--text-1)] placeholder:text-[color:var(--placeholder)]"
           />
         </label>
         <label className="grid min-w-0 gap-1">
-          <span className="text-[11px] text-white/60">Longitude</span>
+          <span className="text-[11px] text-[color:var(--text-5)]">Longitude</span>
           <input
             type="number"
             step="any"
@@ -75,7 +75,7 @@ export function AddLocationForm() {
             onChange={(e) => setLongitude(e.target.value)}
             placeholder="103.8390"
             required
-            className="w-full min-w-0 rounded-md border border-white/15 bg-white/10 px-2 py-1.5 text-sm text-white placeholder:text-white/40"
+            className="w-full min-w-0 rounded-md border border-[color:var(--card-border)] bg-[color:var(--input-bg)] px-2 py-1.5 text-sm text-[color:var(--text-1)] placeholder:text-[color:var(--placeholder)]"
           />
         </label>
       </div>
@@ -83,14 +83,14 @@ export function AddLocationForm() {
         <button
           type="button"
           onClick={cancel}
-          className="rounded-md px-2.5 py-1.5 text-xs font-medium text-white/70 hover:text-white"
+          className="rounded-md px-2.5 py-1.5 text-xs font-medium text-[color:var(--text-4)] hover:text-[color:var(--text-1)]"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-[color:var(--button-primary-bg)] px-3 py-1.5 text-xs font-semibold text-[color:var(--button-primary-text)] hover:bg-[color:var(--button-primary-bg-hover)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? 'Adding…' : 'Add'}
         </button>
