@@ -66,8 +66,8 @@ export function MapCard() {
 
   return (
     <>
-      <section className="flex flex-col gap-3 rounded-2xl border border-white/15 bg-white/[0.08] p-4 backdrop-blur-xl">
-        <header className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/60">
+      <section className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-[color:var(--card-border)] bg-[color:var(--card-bg)] p-4 backdrop-blur-[var(--card-blur)] [box-shadow:var(--card-shadow)]">
+        <header className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-5)]">
           <CloudIcon className="h-3.5 w-3.5" />
           <span>Map</span>
         </header>

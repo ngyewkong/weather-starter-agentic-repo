@@ -8,12 +8,233 @@ body,
   height: 100%;
 }
 
-body {
-  @apply text-white antialiased;
-  background:
+:root[data-theme='apple'] {
+  --app-bg:
     radial-gradient(120% 80% at 70% 0%, rgba(255, 255, 255, 0.18) 0%, transparent 55%),
     radial-gradient(90% 70% at 10% 100%, rgba(80, 110, 150, 0.55) 0%, transparent 60%),
     linear-gradient(170deg, #6f8aa8 0%, #5a7591 35%, #4a627c 65%, #3c5066 100%);
+
+  --text-1: rgb(255 255 255 / 1);
+  --text-2: rgb(255 255 255 / 0.9);
+  --text-3: rgb(255 255 255 / 0.85);
+  --text-4: rgb(255 255 255 / 0.7);
+  --text-5: rgb(255 255 255 / 0.6);
+  --text-6: rgb(255 255 255 / 0.5);
+  --placeholder: rgb(255 255 255 / 0.4);
+
+  --card-bg: rgb(255 255 255 / 0.08);
+  --card-bg-hover: rgb(255 255 255 / 0.13);
+  --card-bg-selected: rgb(255 255 255 / 0.2);
+  --card-bg-subtle: rgb(255 255 255 / 0.04);
+  --sidebar-bg: rgb(0 0 0 / 0.2);
+  --input-bg: rgb(255 255 255 / 0.09);
+
+  --card-border: rgb(255 255 255 / 0.15);
+  --card-border-subtle: rgb(255 255 255 / 0.1);
+  --card-border-selected: rgb(255 255 255 / 0.3);
+
+  --card-blur: 24px;
+  --sidebar-blur: 40px;
+  --card-shadow: none;
+  --radius-card: 1rem;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-display: var(--font-sans);
+  --weight-display: 200;
+  --weight-heading: 300;
+  --accent: #fcd34d;
+
+  --button-primary-bg: rgb(255 255 255 / 0.9);
+  --button-primary-bg-hover: rgb(255 255 255 / 1);
+  --button-primary-text: #0f172a;
+}
+
+:root[data-theme='daybreak'] {
+  --app-bg:
+    radial-gradient(120% 80% at 20% 0%, rgba(255, 214, 186, 0.8) 0%, transparent 55%),
+    radial-gradient(90% 70% at 90% 100%, rgba(199, 179, 234, 0.7) 0%, transparent 60%),
+    linear-gradient(170deg, #ffe3d1 0%, #ffd3c4 35%, #e9c8e6 70%, #d7c3f0 100%);
+
+  --text-1: rgb(38 28 26 / 1);
+  --text-2: rgb(38 28 26 / 0.9);
+  --text-3: rgb(38 28 26 / 0.8);
+  --text-4: rgb(38 28 26 / 0.68);
+  --text-5: rgb(38 28 26 / 0.55);
+  --text-6: rgb(38 28 26 / 0.45);
+  --placeholder: rgb(38 28 26 / 0.35);
+
+  --card-bg: rgb(255 255 255 / 0.95);
+  --card-bg-hover: rgb(255 255 255 / 1);
+  --card-bg-selected: rgb(255 255 255 / 1);
+  --card-bg-subtle: rgb(255 255 255 / 0.6);
+  --sidebar-bg: rgb(255 255 255 / 0.5);
+  --input-bg: rgb(255 255 255 / 0.85);
+
+  --card-border: rgb(255 255 255 / 0.8);
+  --card-border-subtle: rgb(255 180 150 / 0.35);
+  --card-border-selected: rgb(251 146 96 / 0.55);
+
+  --card-blur: 0px;
+  --sidebar-blur: 0px;
+  --card-shadow: 0 10px 30px -8px rgba(219, 122, 79, 0.25);
+  --radius-card: 1.5rem;
+
+  --font-sans: 'Nunito', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-sans);
+  --weight-display: 500;
+  --weight-heading: 500;
+  --accent: #fb7a5a;
+
+  --button-primary-bg: #fb7a5a;
+  --button-primary-bg-hover: #fa6a46;
+  --button-primary-text: #fff;
+}
+
+:root[data-theme='terminal'] {
+  --app-bg: #05070a;
+
+  --text-1: #eafff2;
+  --text-2: #86efac;
+  --text-3: #4ade80;
+  --text-4: #22c55e;
+  --text-5: #6b7280;
+  --text-6: #4b5563;
+  --placeholder: #374151;
+
+  --card-bg: #0d1210;
+  --card-bg-hover: #141b17;
+  --card-bg-selected: #1a2420;
+  --card-bg-subtle: #0a0d0b;
+  --sidebar-bg: #030503;
+  --input-bg: #0d1210;
+
+  --card-border: rgba(74, 222, 128, 0.35);
+  --card-border-subtle: rgba(74, 222, 128, 0.15);
+  --card-border-selected: rgba(74, 222, 128, 0.7);
+
+  --card-blur: 0px;
+  --sidebar-blur: 0px;
+  --card-shadow: none;
+  --radius-card: 0px;
+
+  --font-sans: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: var(--font-sans);
+  --weight-display: 700;
+  --weight-heading: 600;
+  --accent: #4ade80;
+
+  --button-primary-bg: #22c55e;
+  --button-primary-bg-hover: #16a34a;
+  --button-primary-text: #05070a;
+}
+
+:root[data-theme='paper'] {
+  --app-bg: #f5efe4;
+
+  --text-1: #1a1512;
+  --text-2: #2c2420;
+  --text-3: #4a3f38;
+  --text-4: #6b5f54;
+  --text-5: #8a7f70;
+  --text-6: #a89d8d;
+  --placeholder: #b8ae9e;
+
+  --card-bg: transparent;
+  --card-bg-hover: rgba(140, 58, 43, 0.06);
+  --card-bg-selected: rgba(140, 58, 43, 0.09);
+  --card-bg-subtle: rgba(26, 21, 18, 0.04);
+  --sidebar-bg: transparent;
+  --input-bg: rgba(26, 21, 18, 0.03);
+
+  --card-border: rgba(26, 21, 18, 0.3);
+  --card-border-subtle: rgba(26, 21, 18, 0.16);
+  --card-border-selected: rgba(140, 58, 43, 0.6);
+
+  --card-blur: 0px;
+  --sidebar-blur: 0px;
+  --card-shadow: none;
+  --radius-card: 0px;
+
+  --font-sans: 'Source Serif 4', Georgia, serif;
+  --font-display: 'Fraunces', 'Playfair Display', Georgia, serif;
+  --weight-display: 600;
+  --weight-heading: 500;
+  --accent: #8c3a2b;
+
+  --button-primary-bg: #1a1512;
+  --button-primary-bg-hover: #2a221c;
+  --button-primary-text: #f5efe4;
+}
+
+:root[data-theme='neon'] {
+  --app-bg:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.035) 0px,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px,
+      transparent 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.035) 0px,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px,
+      transparent 40px
+    ),
+    radial-gradient(60% 50% at 15% 10%, rgba(236, 72, 153, 0.18) 0%, transparent 60%),
+    radial-gradient(60% 50% at 85% 90%, rgba(34, 211, 238, 0.16) 0%, transparent 60%),
+    #07050d;
+
+  --text-1: #f5f3ff;
+  --text-2: #ded6f7;
+  --text-3: #c2b8e6;
+  --text-4: #a79cc9;
+  --text-5: #8b83a3;
+  --text-6: #6b6478;
+  --placeholder: #554f66;
+
+  --card-bg: rgba(20, 14, 32, 0.55);
+  --card-bg-hover: rgba(30, 20, 45, 0.7);
+  --card-bg-selected: rgba(40, 20, 55, 0.8);
+  --card-bg-subtle: rgba(15, 10, 22, 0.4);
+  --sidebar-bg: rgba(8, 5, 15, 0.55);
+  --input-bg: rgba(20, 14, 32, 0.5);
+
+  --card-border: rgba(34, 211, 238, 0.45);
+  --card-border-subtle: rgba(168, 85, 247, 0.25);
+  --card-border-selected: rgba(236, 72, 153, 0.7);
+
+  --card-blur: 16px;
+  --sidebar-blur: 20px;
+  --card-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.15), 0 0 24px rgba(236, 72, 153, 0.25),
+    0 0 40px rgba(168, 85, 247, 0.15);
+  --radius-card: 0.75rem;
+
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sans);
+  --weight-display: 700;
+  --weight-heading: 700;
+  --accent: #ec4899;
+
+  --button-primary-bg: #ec4899;
+  --button-primary-bg-hover: #db2777;
+  --button-primary-text: #0b0710;
+}
+
+[data-theme='paper'] .hero-header {
+  align-items: flex-start;
+  text-align: left;
+}
+
+body {
+  @apply antialiased;
+  color: var(--text-1);
+  font-family: var(--font-sans);
+  background: var(--app-bg);
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
